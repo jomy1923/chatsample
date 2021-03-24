@@ -9,7 +9,11 @@ var usersRouter = require('./routes/users');
 var dotenv=require('dotenv').config()
 const Handlebars= require('handlebars')
 var hbs=require('express-handlebars')
+
 var app = express();
+// var server = require('./bin/www')
+var server = require('http').Server(app);
+const io= require('socket.io')(server)
 var session=require('express-session')
 app.use(session({
   secret: 'keyboard cat',
@@ -17,6 +21,11 @@ app.use(session({
   saveUninitialized: true,
   cookie: {  maxAge: 5000000}
 }))
+
+app.use(function(req, res, next){
+  res.io = io;
+  next();
+});
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
@@ -39,6 +48,18 @@ db.connect((err)=>{
 app.use('/admin', adminRouter);
 app.use('/', usersRouter);
 
+
+
+
+io.on('connection',(socket)=>{
+  console.log('new connection is established')
+  socket.on('disconnect',()=>{
+    console.log('connnction lost')
+  })
+  
+})
+
+ 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
   next(createError(404));
@@ -55,4 +76,5 @@ app.use(function(err, req, res, next) {
   res.render('error');
 });
 
-module.exports = app;
+
+module.exports = {app: app, server: server};

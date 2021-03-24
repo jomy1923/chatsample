@@ -1,10 +1,12 @@
 const { response } = require('express');
 var express = require('express');
+
 var router = express.Router();
 const userController = require('../controller/user_controller')
 
 /* GET users listing. */
 router.get('/', function (req, res) {
+  res.io.emit("socketToMe", "users");
   let user=req.session.user
   let ifSession = req.user;
   if(ifSession){
@@ -17,7 +19,7 @@ router.get('/', function (req, res) {
 router.get('/index',(req,res)=>{
   let user=req.session.user
   console.log('req.session.user',user);
-  let ifSession = user.username;
+  let ifSession = user;
   console.log('ifSession',ifSession);
   if(ifSession){
    userController.getAllUsers().then((users)=>{
