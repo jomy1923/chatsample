@@ -14,7 +14,8 @@ var app = express();
 // var server = require('./bin/www')
 var server = require('http').Server(app);
 const io= require('socket.io')(server)
-var session=require('express-session')
+var session=require('express-session');
+const collection = require('./config/collection');
 app.use(session({
   secret: 'keyboard cat',
   resave: true,
@@ -56,8 +57,62 @@ io.on('connection',(socket)=>{
   socket.on('disconnect',()=>{
     console.log('connnction lost')
   })
+ let chats=db.get().collection('chats')
+ 
+ //create a function to send status
+ sendStatus=(s)=>{
+   socket.emit('status',s)
+ }
+
+ //get chat from the mongodb collection
+ chats.find().limit(100).sort({_id:1}).toArray((err,res)=>{
+
+  
+   if(err){
+     throw err;
+   }
+
+   //emit the messages
+   socket.emit('output',res);
+   console.log('qwertyui',res);
+   
+
+ })
+
+//handle input events
+socket.on('input',(data)=>{
+  let userName=data.name
+  let userMessage=data.message
+
+  //check for name and messages
+  if(userName==''||userMessage==''){
+    //send err status
+    sendStatus('please enter some messages in it')
+  }else{
+    //insert messages
+    chats.insert({userName:userName,userMessage:userMessage},()=>{
+       io.emit('output',[data])
+
+       //send status object
+      sendStatus({
+        message:'message send',
+        clear:true
+      })
+    })
+  }
+})
+  //handle clear
+  socket.on('clear',(data)=>{
+    //remove all chat from the collection
+    chats.remove({},()=>{
+      //emit cleared
+      socket.emit('no messages at all')
+    });
+
+  })
   
 })
+
 
  
 // catch 404 and forward to error handler

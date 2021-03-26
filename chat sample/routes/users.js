@@ -8,7 +8,7 @@ const userController = require('../controller/user_controller')
 router.get('/', function (req, res) {
   res.io.emit("socketToMe", "users");
   let user=req.session.user
-  let ifSession = req.user;
+  let ifSession = req.session.user;
   if(ifSession){
     res.render('users/index',{user})
   }else{
@@ -24,7 +24,7 @@ router.get('/index',(req,res)=>{
   if(ifSession){
    userController.getAllUsers().then((users)=>{
      console.log('usegfiueguifg',users);
-    res.render('users/index',{user:true,users})
+    res.render('users/index',{user:true,users,username:user.username})
    })
     
   }else{

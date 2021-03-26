@@ -18,15 +18,18 @@
 <body>
 
 <div class="messaging">
+	
   <div class="inbox_msg">
+	
 	<div class="inbox_people">
+		  
 	  <div class="headind_srch">
 		<div class="recent_heading">
 		  <h4>Recent</h4>
 		</div>
 		<div >
 		
-			<a href="/logout"><button type="button" class="btn btn-primary">logout</button></a>
+			<a href="/logout"><button  type="button" class="btn btn-primary">logout</button></a>
 			
 		</div>
 	  </div>
@@ -51,29 +54,45 @@
 	  </div>
 	</div>
 	<div class="mesgs">
+		 <div> <button id="clear" class="btn btn-primary" >clear</button>
+		 </div>
 	  <div class="msg_history">
+		  <div id="chat">
+			   <h3 id="username">{{username}}</h3><hr>
+		  </div>
+		 
+		 
 		<div class="incoming_msg">
 		  <div class="incoming_msg_img"> <img src="https://ptetutorials.com/images/user-profile.png" alt="sunil"> </div>
 		  <div class="received_msg">
-			<div class="received_withd_msg">
+			<div id="received_msg" class="received_withd_msg">
 			  <p>Test which is a new approach
 				</p>
-			  <span class="time_date"> 11:01 AM    |    June 9</span></div>
+			  {{!-- <span class="time_date"> 11:01 AM    |    June 9</span> --}}
+			  </div>
 		  </div>
 		</div>
 		<div class="outgoing_msg">
-		  <div class="sent_msg">
+		  <div id="outgoing_msg" class="sent_msg">
 			<p>Test which is a new approach to have all
 			  solutions</p>
-			<span class="time_date"> 11:01 AM    | all   June 9</span> </div>
+			{{!-- <span class="time_date"> 11:01 AM    | all   June 9</span>  --}}
+			</div>
+		</div>
+		<div id="messages" class="card-block" style="height: 300px;"> 
+			
 		</div>
 		
 		
 		
-	  </div>
+	  </div> 
+	   <div id="status" style="color: red;"></div>   {{!-- status to be display --}}
+	 
 	  <div class="type_msg">
+		
 		<div class="input_msg_write">
-		  <input type="text" class="write_msg" placeholder="Type a message" />
+			
+		  <input type="text" id="textarea" class="write_msg" placeholder="Type a message" />
 		  <button class="msg_send_btn" type="button"><i class="fa fa-paper-plane" aria-hidden="true"></i></button>
 		</div>
 	  </div>
@@ -82,10 +101,68 @@
 </div>
 <script src="/socket.io/socket.io.js"></script>
 <script>
-	var socket=io();
-	socket.on('socketToMe', function (data) {
-      console.log(data);
-    });
+	(function(){
+		var element=function(id){
+			return document.getElementById(id)
+		}
+
+		//get the elment 
+
+		var status=element('status')
+		{{!-- var received_msg=element('received_msg')
+		var outgoing_msg=element('outgoing_msg') --}}
+		var messages=element('messages')
+		var textarea=element('textarea')
+		var username=element('username')
+		var clearBtn=element('clear')
+
+		console.log('messages',messages)
+		console.log('username',username)
+		console.log('textarea',textarea)
+		console.log('status',status)
+		
+		
+
+		//set defaullt status
+		var statusDefault=status.textContent
+
+		var setStatus=function(s){
+			//set status
+			status.textContent=s
+
+			if(s!==statusDefault){
+				var delay=setTimeout(()=>{
+					setStatus(statusDefault)
+				},4000)
+			}
+		}
+
+		//connect to socket.io
+		var socket=io();
+		if(socket!==undefined){
+			console.log('connected to socket...........')
+
+			//get the data from the server
+			socket.on('output', function(data){
+      console.log('dataaaaa',data);
+
+
+	  if(data.length){
+		  for(var i=0;i < data.length;i++){
+			  //build out message div
+			  var message=document.createElement('div')
+			  message.setAttribute('class','chat-message')
+			  message.textContent=data[i].username+":"+data[i].message
+			  message.appendChild(message)
+			  message.insertBefore(message,message.firstChild)
+
+		  }
+	  }
+    }); 
+		}
+	
+	})();
+	
 </script>
 </body>
 </html>
