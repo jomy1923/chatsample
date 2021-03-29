@@ -83,6 +83,12 @@ io.on('connection',(socket)=>{
 socket.on('input',(data)=>{
   let userName=data.name
   let userMessage=data.message
+  console.log('userName:',userName);
+  console.log('userMessage:',userMessage);
+
+
+
+
 
   //check for name and messages
   if(userName==''||userMessage==''){
@@ -90,7 +96,7 @@ socket.on('input',(data)=>{
     sendStatus('please enter some messages in it')
   }else{
     //insert messages
-    chats.insert({userName:userName,userMessage:userMessage},()=>{
+    chats.insertOne({userName:userName,userMessage:userMessage},()=>{
        io.emit('output',[data])
 
        //send status object

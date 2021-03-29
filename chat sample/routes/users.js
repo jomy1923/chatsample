@@ -23,7 +23,7 @@ router.get('/index',(req,res)=>{
   console.log('ifSession',ifSession);
   if(ifSession){
    userController.getAllUsers().then((users)=>{
-     console.log('usegfiueguifg',users);
+     console.log('userdetails',users);
     res.render('users/index',{user:true,users,username:user.username})
    })
     

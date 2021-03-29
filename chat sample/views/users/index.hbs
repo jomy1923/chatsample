@@ -99,7 +99,7 @@
 	</div>
   </div>
 </div>
-<script src="/socket.io/socket.io.js"></script>
+{{!-- <script src="/socket.io/socket.io.js"></script>
 <script>
 	(function(){
 		var element=function(id){
@@ -113,11 +113,11 @@
 		var outgoing_msg=element('outgoing_msg') --}}
 		var messages=element('messages')
 		var textarea=element('textarea')
-		var username=element('username')
+		var username=element('username').textContent
 		var clearBtn=element('clear')
 
 		console.log('messages',messages)
-		console.log('username',username)
+		console.log('usernameaaa',username)
 		console.log('textarea',textarea)
 		console.log('status',status)
 		
@@ -147,21 +147,154 @@
       console.log('dataaaaa',data);
 
 
+
 	  if(data.length){
-		  for(var i=0;i < data.length;i++){
+		  for(var i=0;i <data.length;i++){
 			  //build out message div
 			  var message=document.createElement('div')
+			  console.log('message',message)
 			  message.setAttribute('class','chat-message')
-			  message.textContent=data[i].username+":"+data[i].message
-			  message.appendChild(message)
-			  message.insertBefore(message,message.firstChild)
+			  message.textContent=data[i].userName + ":" + data[i].userMessage
+			  console.log('message.textContent',message.textContent)
+			  messages.append(message)
+			  messages.insertBefore(messages.firstChild,message)
 
+
+	
 		  }
 	  }
     }); 
+	//get status from the server
+	socket.on('status',(data)=>{
+		//get messages status
+		setStatus((typeof data === 'object') ? data.message : data)
+
+		//if status is clear, clear text
+		if(data.clear){
+			textarea.value = '';
+
+		}
+	})
+		//handle the input value
+
+	textarea.addEventListener('keydown',(event)=>{
+		if(event.which === 13 && event.shiftKey == false){
+			//emit to server input	
+		var username=document.getElementById('username').innerHTML
+			socket.emit('input',{
+				name:username,
+				message:textarea.value
+				
+				
+			})
+			
+			event.preventDefault();
+		}
+	})
+
 		}
 	
 	})();
+	
+	
+</script> --}}
+<script src="/socket.io/socket.io.js"></script>
+<script>
+	(function(){
+		var element=function(id){
+			return document.getElementById(id)
+		}
+
+		//get the elment 
+
+		var status=element('status')
+		{{!-- var received_msg=element('received_msg')
+		var outgoing_msg=element('outgoing_msg') --}}
+		var messages=element('messages')
+		var textarea=element('textarea')
+		var username=element('username').textContent
+		var clearBtn=element('clear')
+
+		console.log('messages',messages)
+		console.log('usernameaaa',username)
+		console.log('textarea',textarea)
+		console.log('status',status)
+		
+		
+
+		//set defaullt status
+		var statusDefault=status.textContent
+
+		var setStatus=function(s){
+			//set status
+			status.textContent=s
+
+			if(s!==statusDefault){
+				var delay=setTimeout(()=>{
+					setStatus(statusDefault)
+				},4000)
+			}
+		}
+
+		//connect to socket.io
+		var socket=io();
+		if(socket!==undefined){
+			console.log('connected to socket...........')
+
+			//get the data from the server
+			socket.on('output', function(data){
+      console.log('dataaaaa',data);
+
+
+
+	  if(data.length){
+		  for(var i=0;i <data.length;i++){
+			  //build out message div
+			  var message=document.createElement('div')
+			  console.log('message',message)
+			  message.setAttribute('class','chat-message')
+			  message.textContent=data[i].userName + ":" + data[i].userMessage
+			  console.log('message.textContent',message.textContent)
+			  messages.append(message)
+			  messages.insertBefore(messages.firstChild,message)
+
+
+	
+		  }
+	  }
+    }); 
+	//get status from the server
+	socket.on('status',(data)=>{
+		//get messages status
+		setStatus((typeof data === 'object') ? data.message : data)
+
+		//if status is clear, clear text
+		if(data.clear){
+			textarea.value = '';
+
+		}
+	})
+		//handle the input value
+
+	textarea.addEventListener('keydown',(event)=>{
+		if(event.which === 13 && event.shiftKey == false){
+			//emit to server input	
+		var username=document.getElementById('username').innerHTML
+			socket.emit('input',{
+				name:username,
+				message:textarea.value
+				
+				
+			})
+			
+			event.preventDefault();
+		}
+	})
+
+		}
+	
+	})();
+	
 	
 </script>
 </body>
